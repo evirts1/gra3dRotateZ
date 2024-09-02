@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+   <TITLE>Gravity Simulator</TITLE>
+    <meta name="generator" content="Visual Studio 2017" >
+    <meta name="author" content="eric.virts@gmail.com" >
+    <META NAME="Keywords" CONTENT="">
+    <META NAME="Description" CONTENT="">
+<p>
+Gra3d... instructions:
+Open with a browser to run. The old Microsoft Edge seems the fastest.
+Edge will take longer to load but the simulation runs faster.
+Open in a text editor to view the source code.
+Use at your own risk.
+This is running javascript in your browser.
+The Z axis is looking into the screen.
+The parameters are used to generate values for the generated javascript.
+If you view the source from the parameter screen it will be different than that of the running simulation screen.
+You can save the source of the running simulation screen to have a stand alone html file using the selected parameters.
+This is designed to be fun and  visually interesting only and is not intended as a physics simulation.
+Have fun, and learn to program.
+Use at your own risk.
+</p>
+</head>
+<body >
+    <form id="form1" runat="server">
+        <h1>Gravity Simulator, meant for fun and experimentation.</h1>
+        <H2>Enter Number of Objects in top box and Z distance in bottom box and click on RUN</H2>
+        <h3>Right-Click to view to play with javaScript source code.</h3>
+
+<TABLE border="0">
+<TR>
+    <TD>
+    Number of Objects
+    </td>
+    <td>
+    <INPUT title="Number of objects" TYPE="text" NAME="obval" value="4">
+    </TD>
+    <TD>
+    With more than 40 things run pretty slow on a P4 3Ghz. This is javaScript.
+    </TD>
+</TR>
+<TR>
+    <TD>
+    Distance in the z plane
+    </td>
+    <td>
+    <INPUT title="Z distance" TYPE="text" NAME="zval" value="1">
+    </TD>
+    <TD>
+    Placed randomly 0 - 2000.
+    </TD>
+</TR>
+<TR>
+    <TD>
+    Spin Speed
+    </td>
+    <td>
+    <INPUT title="spin speed" TYPE="text" NAME="spinspeed" value="1">
+    </TD>
+    <TD>
+    Can be zero and greater or less than zero, decimal values allowed.
+    </TD>
+</TR>
+<TR>
+    <TD>Simulation Speed</td>
+    <td><INPUT title="simulation speed" TYPE="text" NAME="simspeed" value="1"></TD>
+    <TD>
+    1 - 2000, 1 being the fastest 2000 means a 2 second delay.
+    </TD>
+</TR>
+<TR>
+    <TD>Gravitational Constant</td>
+    <td><INPUT title="Gravitational Constant" TYPE="text" NAME="gc" value="1.0"></TD>
+    <TD>
+    1 equals none. Less than 1 equates to less force. Approximate real constant = 0.0000000000667; Mass in this version is always 1.
+    </TD>
+</TR>
+<TR>
+    <TD>Expansion of Space</td>
+    <td><INPUT title="Expansion of Space" TYPE="text" NAME="es" value="1.0"></TD>
+    <TD>
+    This should lower the energy of the system over time.
+    </TD>
+</TR>
+<TR>
+    <td>Object Placement</td>
+    <TD>
+    <SELECT name="pat">
+    <OPTION value="rand">RANDOM</OPTION>
+    <OPTION selected value="spin">SPIN</OPTION>
+    </SELECT>
+    </TD>
+    <TD>
+    How objects are initially placed. Spin places objects orbiting a central point.
+    </TD>
+</TR>
+<TR>
+    <td>Spin circle size in pixels</td>
+    <TD>
+    <INPUT title="Spin size" TYPE="text" NAME="spinsize" value="150">
+    </TD>
+    <TD>
+    The size of the circle when spin is selected.
+    </TD>
+</TR>
+<tr>
+    <td colspan="3">
+    Star&nbsp;Color:&nbsp;&nbsp;r<input title="red" type="text" name="red" value="255" />
+    g<input title="green" type="text" name="green" value="255"/>
+    b<input title="blue" type="text" name="blue" value="255"/>
+    </td>
+</tr>
+<tr>
+    <td><INPUT TYPE="checkbox" NAME="chkMouse">Mouse as object</td>
+    <td>
+    <INPUT title="Run system" TYPE="button" value="RUN" onClick="getob(form1.obval.value,form1.zval.value,form1.spinspeed.value,form1.pat.value,form1.simspeed.value,form1.spinsize.value)">
+    </td>
+    <td></td>
+</tr>
+<tr>
+    <td><input type="checkbox" Name="chkbhs"/>Multiply force by val between 0-1 for each object.</td>
+</tr>
+</TABLE>
+</form>
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ 
+function getob(v,zdist,spinspeed,pat,simspeed,cs)
+{
+var red = 0 + form1.red.value;
+var green = 0 + form1.green.value;
+var blue = 0 + form1.blue.value;
+var z=200;
+var ob = 5;
+var mao = form1.chkMouse.checked;
+var bhs = form1.chkbhs.checked; //blackHoleSim
+var p=pat;
+var sspeed = 1;
+var gifNum=10;
+var char10 = String.fromCharCode(10);
+var speed = 1;
+var screenx = screen.availWidth;
+var screeny = screen.availHeight;
+var ie = document.all ? true : false;
+var circlesize = cs;
+var es = form1.es.value;
+var gc = 1;
+   if (form1.gc.value != 0) {gc = (1 / form1.gc.value);}
+
+if(v >= 2)
+   {ob = v;}
+else
+   {ob=5;}
+if(mao)
+{ob++;}
+if((zdist > 0 && zdist < 2001) && zdist != null)
+  {z = zdist;}
+else
+  {z = 200;}
+if((simspeed >= 1 && simspeed <= 2000) && sspeed != null)  
+   sspeed = simspeed;
+else
+    sspeed = 1;
+    win = window.open("", "_blank", "top=0,left=0,height=" + screeny + ",width=" + screenx + ",menubar=no,toolbar=no,location=no,status=no,scrollbars=no,resizable=yes");
+    win.document.write("<HTML>"+char10);
+    win.document.write("<BODY style='overflow: hidden;' bgcolor='#000000'>"+char10);
+    win.document.write("<FORM name='form1'>"+char10);
+for(var i=0,gn=0;i<ob;i++,gn++)
+{
+  var r = Math.floor(Math.random() * red);
+  var g = Math.floor(Math.random() * green);
+  var b = Math.floor(Math.random() * blue);
+  var rot = 0;
+  win.document.write("<canvas id=star"+i+" style='LEFT: 0px; POSITION: absolute; TOP:0px; height:2; width:2; background-color:rgb("+r+","+g+","+b+");'></canvas>"+char10);
+  // win.document.write("<DIV id=star"+i+" style='LEFT: 0px; POSITION: absolute; TOP:0px; height:2; width:2; background-color:rgb("+r+","+g+","+b+");'></DIV>"+char10);
+if(gn > gifNum-1)
+   {gn=0;}
+}
+win.document.write("<SCRIPT LANGUAGE='JavaScript'>");
+win.document.write("<!--"+char10);
+win.document.write("if (document.layers) { // Netscape"+char10);
+win.document.write("document.captureEvents(Event.MOUSEMOVE);"+char10);
+win.document.write("document.onmousemove = captureMousePosition;"+char10);
+win.document.write("} else if (document.all) { // Internet Explorer"+char10);
+win.document.write("document.onmousemove = captureMousePosition;"+char10);
+win.document.write("} else if (document.getElementById) { // Netcsape 6"+char10);
+win.document.write("document.onmousemove = captureMousePosition;"+char10);
+win.document.write("}"+char10);
+// Global variables
+win.document.write("xMousePos = 0; // Horizontal position of the mouse on the screen"+char10);
+win.document.write("yMousePos = 0; // Vertical position of the mouse on the screen"+char10);
+win.document.write("function captureMousePosition(e) {"+char10);
+win.document.write("if (document.layers) {"+char10);
+win.document.write("xMousePos = e.pageX;"+char10);
+win.document.write("yMousePos = e.pageY;"+char10);
+win.document.write("} else if (document.all) {"+char10);
+win.document.write("xMousePos = window.event.x+document.body.scrollLeft;"+char10);
+win.document.write("yMousePos = window.event.y+document.body.scrollTop;"+char10);
+win.document.write("} else if (document.getElementById) {"+char10);
+// Netscape 6 behaves the same as Netscape 4 in this regard  
+win.document.write("xMousePos = e.pageX;"+char10);
+win.document.write("yMousePos = e.pageY;"+char10);
+win.document.write("}"+char10);
+win.document.write("}"+char10);
+win.document.write("x = new Array();"+char10);
+win.document.write("y = new Array();"+char10);
+win.document.write("z = new Array();"+char10);
+win.document.write("xr = new Array();"+char10);
+win.document.write("yr = new Array();"+char10);
+win.document.write("zr = new Array();"+char10);
+win.document.write("var mxr = 1.0;"+char10);
+win.document.write("myr = 1;"+char10);
+win.document.write("mzr = 1;"+char10);
+win.document.write("fx = new Array();"+char10);
+win.document.write("fy = new Array();"+char10);
+win.document.write("fz = new Array();"+char10);
+win.document.write("m = new Array();"+char10);
+win.document.write("var cnt = 0;"+char10);
+win.document.write("var G = 0.0000000000667;"+char10);
+win.document.write("var current=0;"+char10);
+win.document.write("var size = "+ob+";"+char10);
+    win.document.write("var mao = " + mao + ";" + char10);
+    win.document.write("var bhs = " + bhs + ";" + char10);
+   
+win.document.write("var getmaxx = screen.availWidth;"+char10);
+win.document.write("var getmaxy = screen.availHeight;"+char10);
+win.document.write("var cx=0;"+char10);
+win.document.write("var sy=0;"+char10);
+win.document.write("var zz=0;"+char10);
+win.document.write("var midx = getmaxx / 2;"+char10);
+win.document.write("var midy = getmaxy / 2;"+char10);
+win.document.write("var zi=0;" + char10);
+
+win.document.write("var rot2=10;" + char10);
+win.document.write("var rgb1 = Math.floor(Math.random() * 255);"+char10);
+win.document.write("var rgb2 = Math.floor(Math.random() * 255);"+char10);
+win.document.write("var rgb3 = Math.floor(Math.random() * 255);"+char10);
+win.document.write("var newRGB = '#FFFFFF';"+char10);
+win.document.write("var mf = .00001;"+char10);
+win.document.write("var p = 2;"+char10);
+win.document.write("var pattern = '"+pat+"';"+char10);
+win.document.write(""+char10);
+win.document.write("while(cnt < size)"+char10);
+win.document.write("   {"+char10);
+win.document.write("    x[cnt] = 0;"+char10);
+win.document.write("    y[cnt] = 0;"+char10);
+win.document.write("    z[cnt] = 0;"+char10);
+win.document.write("    fx[cnt] = 0;"+char10);
+win.document.write("    fy[cnt] = 0;"+char10);
+win.document.write("    fz[cnt] = 0;"+char10);
+win.document.write("    m[cnt] = Math.random()*100000000000000.0;"+char10);
+win.document.write("    cnt++;"+char10);
+win.document.write("   }"+char10);
+win.document.write("   cnt=0;"+char10);
+win.document.write(""+char10);
+win.document.write("if(pattern == 'rand')"+char10);
+win.document.write("{"+char10);
+win.document.write("while(cnt < size)"+char10);
+win.document.write("   {"+char10);
+//win.document.write("     x[cnt] =  getmaxx / 2 + Math.random() * getmaxx / 256;"+char10);
+//win.document.write("   y[cnt] =  getmaxy / 2 + Math.random() * getmaxy / 256;"+char10);
+win.document.write("     x[cnt] =  Math.random() * getmaxx;"+char10);
+win.document.write("   y[cnt] =  Math.random() * getmaxy;"+char10);
+win.document.write("   z[cnt] = Math.random() * "+z+";"+char10);
+win.document.write(" cnt++;"+char10);
+win.document.write("   }"+char10);
+win.document.write("}"+char10);
+win.document.write("else"+char10);
+win.document.write("{"+char10);
+//////////////////////////////////////////////////////////////////
+win.document.write("while(cnt < size)"+char10);
+win.document.write("   {"+char10);
+win.document.write("if(cnt < (size / 2)){"+char10);
+win.document.write("   x[cnt] = (getmaxx /4) + Math.cos((2*Math.PI)/(size/2)*(cnt))*"+circlesize+";"+char10);
+win.document.write("   y[cnt] = (getmaxy /2) + Math.sin((2*Math.PI)/(size/2)*(cnt))*"+circlesize+";"+char10);
+win.document.write("}"+char10);
+win.document.write("else{"+char10);
+win.document.write("   x[cnt] = ((getmaxx /4)*3) + Math.cos((2*Math.PI)/(size/2)*(cnt))*"+circlesize+";"+char10);
+win.document.write("   y[cnt] = (getmaxy /2) + Math.sin((2*Math.PI)/(size/2)*(cnt))*"+circlesize+";"+char10);
+//win.document.write("");
+win.document.write("}"+char10);
+
+win.document.write("   z[cnt] = Math.random() * "+z+";"+char10);
+win.document.write("   fx[cnt] = Math.sin((2*Math.PI)/(size/2)*(cnt))* "+spinspeed+";"+char10);
+win.document.write("   fy[cnt] = -Math.cos((2*Math.PI)/(size/2)*(cnt))* "+spinspeed+";"+char10);
+win.document.write("   fz[cnt] = 0;"+char10);
+win.document.write(" cnt++;"+char10);
+win.document.write("   }"+char10);
+/////////////////////////////////////////////////////////////////
+//orginal: 1 circle
+//win.document.write("while(cnt < size)"+char10);
+//win.document.write("   {"+char10);
+//win.document.write("   x[cnt] = (getmaxx /2) + Math.cos((2*Math.PI)/(size)*(cnt))*"+circlesize+";"+char10);
+//win.document.write("   y[cnt] = (getmaxy /2) + Math.sin((2*Math.PI)/(size)*(cnt))*"+circlesize+";"+char10);
+//win.document.write("   z[cnt] = Math.random() * "+z+";"+char10);
+//win.document.write("   fx[cnt] = Math.sin((2*Math.PI)/(size)*(cnt))* "+spinspeed+";"+char10);
+//win.document.write("   fy[cnt] = -Math.cos((2*Math.PI)/(size)*(cnt))* "+spinspeed+";"+char10);
+//win.document.write("   fz[cnt] = 0;"+char10);
+//win.document.write(" cnt++;"+char10);
+//win.document.write("   }"+char10);
+win.document.write("}"+char10);
+win.document.write(""+char10);
+win.document.write("   cnt=1;"+char10);
+win.document.write("   current = 0;"+char10);
+win.document.write(""+char10);
+win.document.write("function main()"+char10);
+win.document.write("{"+char10);
+win.document.write("    while(current < size)"+char10);
+win.document.write("    {"+char10);
+win.document.write(""+char10);
+win.document.write("    /*CALCULATE HYPOTNUSE BETWEEN BALLS*/"+char10);
+win.document.write(""+char10);
+win.document.write("   if(current != cnt)"+char10);
+win.document.write("   {"+char10);
+win.document.write("   rad = hypot((x[current] - x[cnt]),(y[current] - y[cnt]));"+char10);
+win.document.write("       trad = Math.sqrt(Math.pow(rad,2) + Math.pow((z[current] - z[cnt]),2));"+char10);//true radius
+win.document.write("       }"+char10);
+win.document.write(""+char10);
+win.document.write("    /*CALCULATE X AND Y DISTANCES BETWEEN BALLS*/"+char10);
+win.document.write(""+char10);
+win.document.write("   if(current != cnt)"+char10);
+win.document.write("   {"+char10);
+win.document.write("   //xr = x[current] - x[cnt];  /* x DISTANCE current to cnt*/"+char10);
+win.document.write("   //yr = y[current] - y[cnt];  /* Y DISTANCE current to cnt*/"+char10);
+win.document.write("         //zr = z[current] - z[cnt];"+char10);
+
+win.document.write("   xr = x[current] - x[cnt];  /* x DISTANCE current to cnt*/" + char10);
+win.document.write("   yr = y[current] - y[cnt];  /* Y DISTANCE current to cnt*/"+char10);
+win.document.write("         zr = z[current] - z[cnt];" + char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write("    /* FORCE CALCULATION BASED ON HYPOTNUSE DISTANCE*/"+char10);
+win.document.write(""+char10);
+win.document.write("   if(current != cnt)"+char10);
+win.document.write("   {"+char10);
+win.document.write("   if(trad != 0)"+char10);
+win.document.write("   {"+char10);
+win.document.write(""+char10);
+win.document.write("      " + char10);
+win.document.write("      if (bhs) {" + char10);
+win.document.write("        if(xr != 0.0){mxr = ( (1/" + gc + ") * ((m[current] * m[cnt]) ) / (Math.pow(trad,2)));} "+char10);
+win.document.write("        if(yr != 0.0){myr = ( (1/" + gc + ") * ((m[current] * m[cnt]) ) / (Math.pow(trad,2)));}"+char10);
+win.document.write("        if(zr != 0.0){mzr = ( (1/" + gc + ") * ((m[current] * m[cnt]) ) / (Math.pow(trad,2)));}"+char10);
+win.document.write("   cx = cx + (mxr * Math.sign(xr));" + char10);
+win.document.write("   sy = sy + ( myr * Math.sign(yr));" + char10);
+win.document.write("        zz = zz + ( mzr * Math.sign(zr));" + char10);
+win.document.write("        }" + char10);
+win.document.write("        else {" + char10);
+win.document.write("   cx = cx + ((xr) / (Math.pow(trad,p) * "+ gc +" ));   /* cos */"+char10);//F=G(m1*m2)/r^2
+win.document.write("   sy = sy + ((yr) / (Math.pow(trad,p) * "+ gc +" ));   /* sin */"+char10);
+win.document.write("             zz = zz + ((zr) / (Math.pow(trad,p) * "+ gc +" ));"+char10);
+win.document.write("   }" + char10);
+win.document.write("   }" + char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write("    /*FORCE APPLIED TO BALLS TO PRODUCE MOTION*/"+char10);
+win.document.write(""+char10);
+    win.document.write("" + char10);
+
+win.document.write("     if(current != cnt)"+char10);
+    win.document.write("   {" + char10);
+    win.document.write("         if (bhs) {" + char10);
+        win.document.write("   fx[current] = (fx[current] + cx) * "+ es +";" + char10);
+        win.document.write("   fy[current] = (fy[current] + sy) * "+ es +";" + char10);
+        win.document.write("             fz[current] = (fz[current] + zz) * "+ es +";" + char10);
+
+//       win.document.write("   fx[current] = fx[current] + (cx * m[current]) * "+ es +";" + char10);//not really correct, just dimishes force.
+//        win.document.write("   fy[current] = fy[current] + (sy * m[current]) * "+ es +";" + char10);
+//        win.document.write("             fz[current] = fz[current] + (zz * m[current]) * "+ es +";" + char10);
+win.document.write("              }"  + char10);
+  win.document.write("        else {" + char10);
+        win.document.write("   fx[current] = (fx[current] + cx) * "+ es +";" + char10);
+        win.document.write("   fy[current] = (fy[current] + sy) * "+ es +";" + char10);
+        win.document.write("             fz[current] = (fz[current] + zz) * "+ es +";" + char10);
+win.document.write("              }"  + char10);
+    win.document.write("" + char10);
+    win.document.write("   }" + char10);
+
+win.document.write(""+char10);
+win.document.write("       cx = 0;"+char10);
+win.document.write("   sy = 0;"+char10);
+win.document.write("         zz = 0;"+char10);
+win.document.write("   cnt++;"+char10);
+win.document.write(""+char10);
+win.document.write("   if(cnt == size)"+char10);
+win.document.write("   {"+char10);
+win.document.write("   current++;cnt=0;"+char10);
+win.document.write(""+char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write("    }"+char10);
+win.document.write(""+char10);
+win.document.write("    current = 0;"+char10);
+win.document.write(""+char10);
+win.document.write("     while(current < size)"+char10);
+win.document.write("   {"+char10);
+win.document.write("   x[current] = x[current] - fx[current]; /* X FORCE  */"+char10);
+win.document.write("   y[current] = y[current] - fy[current]; /* Y FORCE  */"+char10);
+win.document.write("             z[current] = z[current] - fz[current]; /* Z FORCE NEG */"+char10);
+win.document.write("           if(mao&&current==0)"+char10);
+win.document.write("             {"+char10);
+win.document.write("     x[current] = xMousePos; /* X FORCE  */"+char10);
+win.document.write("     y[current] = yMousePos; /* Y FORCE  */" + char10);
+//win.document.write("     z[current] = 0; /* Z FORCE  */" + char10);//fails
+win.document.write("             }"+char10);
+win.document.write(""+char10);
+win.document.write(""+char10);
+win.document.write("     mf = .00001;"+char10);
+win.document.write("     if(x[current] > midx && z[current] < 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    xc = x[current] + z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write("       if(x[current] > midx && z[current] > 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    xc = x[current] - z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write("     if(x[current] < midx && z[current] < 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    xc = x[current] - z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write("       if(x[current] < midx && z[current] > 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    xc = x[current] + z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write("     if(y[current] > midy && z[current] < 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    yc = y[current] + z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write("   if(y[current] > midy && z[current] > 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    yc = y[current] - z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write("     if(y[current] < midy && z[current] < 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    yc = y[current] - z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write("     if(y[current] < midy && z[current] > 0)"+char10);
+win.document.write(""+char10);
+win.document.write("   {"+char10);
+win.document.write("    yc = y[current] + z[current]* mf;"+char10);
+win.document.write("   }"+char10);
+win.document.write(""+char10);
+win.document.write(""+char10);
+
+win.document.write(""+char10);
+win.document.write(""+char10);
+win.document.write("     if(z[current] != 2000)   //size"+char10);
+win.document.write("     {"+char10);
+win.document.write("    zi =  Math.round(4000/(2000- z[current]));"+char10);
+win.document.write("       }"+char10);
+win.document.write("     else"+char10);
+win.document.write("     {"+char10);
+win.document.write("   zi = 1;"+char10);
+win.document.write("     }"+char10);
+win.document.write(""+char10);
+win.document.write("     if(zi < 1)"+char10);
+win.document.write("   zi = 1;"+char10);
+win.document.write("       "+char10);
+win.document.write("     //circle(xc,yc,zi);"+char10);
+win.document.write("yc -= (zi*.5) ;"+char10); //center y
+win.document.write("xc -= (zi*.5) ;"+char10); //center x
+win.document.write("     switch(current)"+char10);
+win.document.write("   {"+char10);
+for(var i=0;i<ob;i++)
+{
+    //var b = 16;
+    //var rgb1 = Math.floor(Math.random() * 255);
+    //var rgb2 = Math.floor(Math.random() * 255);
+    //var rgb3 = Math.floor(Math.random() * 255);
+    //rgb1 = Math.floor(Math.random() * 255).toString(b);
+    //rgb2 = Math.floor(Math.random() * 255).toString(b);
+    //rgb3 = Math.floor(Math.random() * 255).toString(b);
+
+    //.charCodeAt(i).toString(b);
+    //var newRGB = "#FFFFFF";
+    //newRGB = "#" + rgb1 + rgb2 + rgb3;
+     if(ie)
+    {
+    win.document.write("   case "+i+" : star"+i+".style.pixelLeft = xc;"+char10);
+    win.document.write("     star"+i+".style.pixelTop = yc;"+char10);
+    win.document.write("    star"+i+".style.zIndex = zi;"+char10);
+    win.document.write("    star"+i+".style.height = zi;"+char10);
+    win.document.write("    star"+i+".style.width = zi;"+char10);
+    //win.document.write("    form1.s"+i+".height = zi;"+char10);
+    //win.document.write("    form1.s"+i+".width = zi;"+char10);
+        // win.document.write("    star"+i+".style.background-color:rgb("+255+","+255+","+255+");"+char10);
+    win.document.write("     break;"+char10);
+    }
+    else
+     {
+
+         //
+         // win.document.write("  rgb2 = Math.floor(Math.random() * 255).toString(b);"+char10);
+         //win.document.write("   rgb3 = Math.floor(Math.random() * 255).toString(b);" + char10);
+         //win.document.write("   newRGB = '#' + rgb1 + rgb2 + rgb3;" + char10);
+
+    win.document.write("   case "+i+" : document.getElementById('star"+i+"').style.left = xc+'px';"+char10);
+    win.document.write("     document.getElementById('star"+i+"').style.top = yc+'px';"+char10);
+    win.document.write("    document.getElementById('star"+i+"').style.zIndex = zi;"+char10);
+    win.document.write("    document.getElementById('star"+i+"').style.height = zi;"+char10);
+         win.document.write("    document.getElementById('star" + i + "').style.width = zi;" + char10);
+         //win.document.write("   rgb1 = (Math.floor(Math.random() * 255)).toString(16);" + char10);
+         //win.document.write("   rgb2 = (Math.floor(Math.random() * 255)).toString(16);" + char10);
+         //win.document.write("   rgb3 = (Math.floor(Math.random() * 255)).toString(16);" + char10);
+
+         //win.document.write("   rgb1 = ((255 - (fx["+i+"] * 10))).toString(16);" + char10);
+         win.document.write("   rgb1 = ((Math.abs(255 - "+i+"))).toString(16);" + char10);
+         win.document.write("   rgb2 = ((Math.abs(155 - "+i+"))).toString(16);" + char10);
+         win.document.write("   rgb3 = ((Math.abs(55 - "+i+"))).toString(16);" + char10);
+
+         win.document.write("   newRGB = '#' + rgb1 + rgb2 + rgb3;" + char10);
+         win.document.write("    document.getElementById('star" + i + "').style.backgroundColor = newRGB;" + char10);//"#00FF00"
+         
+		 //win.document.write(" rot2 = Math.floor(Math.random() * 90);" + char10);
+		win.document.write(" if(zi != 0){ rot2 = Math.floor(360 / zi);}" + char10);
+	               //win.document.write(" rot2 = Math.floor(360 / zi);" + char10);
+		win.document.write("    document.getElementById('star" + i + "').style.transform = 'rotate('+rot2+'deg)'" + char10);
+		 //win.document.write("    document.getElementById('star" + i + "').style.transform = 'rotate('+'Math.floor(Math.random() * 360).tostring()'+'deg)'" + char10);
+         //win.document.write("    document.form1.s"+i+".height = zi;"+char10);
+    //win.document.write("    document.form1.s"+i+".width = zi;"+char10);
+         
+    //win.document.write("     break;"+char10win.document.write(" 
+	win.document.write("     break;"+char10);
+ 
+    }
+}
+win.document.write("   }"+char10);
+win.document.write("   current++;"+char10);
+win.document.write("    }               /*closes c<s*/"+char10);
+win.document.write(""+char10);
+win.document.write("   cnt = 1;"+char10);
+win.document.write("   current = 0;"+char10);
+win.document.write("}"+char10);
+//win.document.write("setInterval('main()',1);"+char10);
+win.document.write("setInterval('main()',"+sspeed+");"+char10);
+win.document.write("function hypot(x,y)"+char10);
+win.document.write("{"+char10);
+win.document.write("  return Math.sqrt(Math.pow(x,2)+Math.pow(y,2))"+char10);
+win.document.write("}"+char10);
+win.document.write("function showval()"+char10);
+win.document.write("{"+char10);
+win.document.write(" alert(z[current]);"+char10);
+win.document.write(" alert(4000/(2000- z[current]));"+char10);
+win.document.write(" alert(zi);"+char10);
+win.document.write("}"+char10);
+for(var i=0;i < speed;i++)
+{
+ if(i > 3 || speed < 1)
+   {break;}
+ win.document.write("main();"+char10);
+}
+win.document.write("//-->"+char10);
+win.document.write("<\/SCRIPT>"+char10);
+win.document.write("</FORM>"+char10);
+win.document.write("</BODY>"+char10);
+win.document.write("</HTML>"+char10);
+win.document.write(""+char10);
+//-->
+}
+</SCRIPT>
+
+</body>
+</html>
